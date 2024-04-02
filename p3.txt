@@ -1,0 +1,98 @@
+.TH
+.SH NAME
+P3 - File Systems
+.SH SYNOPSIS
+Read a wad file and construct a file system then use fuse to mount it
+.SH DESCRIPTION
+/home/reptilian/p3/libWad/Wad.h
+.RS
+It includes an object called Node which was used to keep track of files/directories using a tree. Nodes have an offset, length, name, data, children, and parent. In my Wad class, I had variables for the root node, number of descriptors, magic, and offset. After that is prototypes for all the functions given in the project specification plus helper functions.
+.RE
+
+/home/reptilian/p3/libWad/Wad.cpp
+.RS
+This file includes all the definitions for all the functions.
+.RE
+
+.RS
+For Wad constructor, I read in the first 12 bytes and stored the magic, numDesc, and offset. Then I parsed the rest of the wad file storing into each node the offset, length, name, parent, and data as appropriate. I determined what type of node by looking at the name and its length. I used a Node* pwd to save which directory I was working in. In the case of content, I would read in the data, store it, and seek past it to the next descriptor.
+.RE
+.RS
+For loadWad, I made a new Wad and returned it.
+.RE
+.RS
+For getMagic, I returned string casted magic.
+.RE
+.RS
+For isContent, I checked to see if the node at the given path existed and did not have children.
+.RE
+.RS
+For isDirectory, I checked to see if the node at the given path existed and its length was 0.
+.RE
+.RS
+For getSize, I checked to see if the node at the given path was content then returned its length.
+.RE
+.RS
+For getContents, I stored in the buffer the bytes of the contents based on its length.
+.RE
+.RS
+For getDirectory, I stored in the directory vector, all the nodes in the given path.
+.RE
+.RS
+For getNode, I removed any "/" in the path and then searched the tree to find the node at that path.
+.RE
+.RS
+For the destructor, I called deleteTree.
+.RE
+.RS
+For deleteTree, I iterated through the tree deleting each node.
+.RE
+.RS
+For getRoot, I returned the root.
+.RE
+
+/home/reptilian/p3/libWad/makefile
+.RS
+I wrote a simple makefile that compiles the above files and creates a library. 
+.RE
+
+/home/reptilian/p3/wadfs/wadfs.cpp
+.RS
+This file includes all the fuse functions.
+.RE
+
+.RS
+For getattr_callback, I declared the path as directory or content.
+.RE
+.RS
+For read_callback, I called getContents.
+.RE
+.RS
+For readdir_callback, I set the structure of the directory.
+.RE
+.RS
+For main, created the wad, reorganized the command line inputs, and returned the fuse_main().
+.RE
+.RS
+For open_callback, release_callback, opendir_callback, and releasedir_callback, I returned 0.
+.RE
+
+/home/reptilian/p3/wadfs/makefile
+.RS
+I wrote a simple makefile that compiles wadfs using the library. 
+.RE
+
+
+.SH TESTING
+To test the library, I would run the command: "cd libWad && make && cd .. && c++ -o dump wad_dump.cpp -L ./libWad -lWad && ./dump sample1.wad".
+Which would run the makefile, compile the test, and run it.
+To test the daemon, I would run the command: "cd wadfs && make && cd.. && ./wadfs/wadfs sample1.wad /home/reptilian/mountdir"
+Which would run the makefile, compile the daemon, and mount the file system.
+.SH BUGS
+No known bugs.
+.SH LINK
+https://youtu.be/q3CQP0IbrIU
+.SH REFERENCES/CITATIONS
+https://engineering.facile.it/blog/eng/write-filesystem-fuse/
+.SH AUTHOR
+Matthew Kopelowitz
